@@ -1,0 +1,9 @@
+name: demo
+title: Inspec motd
+maintainer: me
+copyright: Me
+license: Apache-2.0
+summary: Demo of MOTD
+version: 1.0.0
+supports:
+  - plaform-family: unix

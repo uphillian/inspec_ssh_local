@@ -1,0 +1,36 @@
+---
+- name: whois this
+  debug:
+    msg: Ansible running as {{ ansible_user_id }}
+- name: inspec monkey_patch
+  delegate_to: localhost
+  become: false
+  copy:
+    src: "inspec_ssh_local.rb"
+    dest: "/var/tmp/inspec_ssh_local.rb"
+    mode: '0644'
+
+- name: inspec_wrapper
+  delegate_to: localhost
+  become: false
+  copy:
+    src: "inspec.rb"
+    dest: "/var/tmp/inspec.rb"
+    mode: '0755'
+
+- name: inspec exec
+  delegate_to: localhost
+  become: false
+  changed_when: false
+  command: >
+    /var/tmp/inspec.rb exec --no-create-lockfile /var/tmp/{{ inspec_profile_dir }} -t foo://{{ ansible_user_id }}@{{ inventory_hostname }} {{ inspec_args }}
+  no_log: false
+  ignore_errors: yes
+  register: inspec_out
+
+- name: inspec exec - stdout
+  debug:
+    var: inspec_out.stdout_lines
+  when: inspec_out.rc == 0 or inspec_out.rc == 101
+#    runuser -u awx -- /bin/ssh -S /var/tmp/ansible-{{ inventory_hostname }}-{{ ansible_port }}-{{ansible_user_id }} {{ ansible_user_id }}@{{ inventory_hostname }} /var/tmp/inspec.rb exec --no-create-lockfile /var/tmp/{{ inspec_profile_dir }} -t foo://{{ ansible_user_id }}@{{ inventory_hostname }} {{ inspec_args }}
+...

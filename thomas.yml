@@ -1,0 +1,9 @@
+---
+- hosts: all
+  tasks:
+          - name: include inspec_runner
+            include_role:
+                    name: inspec_runner
+- hosts: localhost
+  connection: local
+  become: false
